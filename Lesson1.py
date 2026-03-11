@@ -1,5 +1,4 @@
 # HFEGebf
-# jshcj
 
 class DataBase:
     __instance = None
@@ -284,21 +283,36 @@ class GAME:
 
 
 a = ACCOUNT()
-a.create_acc('Lock228', 123)
-a.create_acc('Lock228', 123)
-print(a.reg)
 
-a.create_acc('Okak', 22546)
+print('Ведите номер требуемой команды:')
+print('1: Создать аккаунт')
+print('2: Войти в аккаунт')
+print('3: Переименовать аккаунт')
+print('4: Получить Логи (пароли и логины всех аккаунтов)')
+print('exit: Выйти')
 
-a.enter_in_acc('FEfe', 1233)
-a.enter_in_acc('Lock228', 123)
+chose = input()
 
-a.rename_acc('Lock228', 'Open31')
+while chose != 'exit':
 
-a.enter_in_acc('FEfe', 1233)
-a.enter_in_acc('Open31', 123)
+    if chose == '1':
+        a.create_acc(input(), int(input()))
+        print(a.reg)
 
-a.get_logs()
+    if chose == '2':
+        a.enter_in_acc(input(), int(input()))
+        pass
+
+    if chose == '3':
+        a.rename_acc(input(), input())
+        pass
+
+    if chose == '4':
+        a.get_logs()
+        pass
+
+    chose = input()
+
 
 b = GAME()
 b.win_the_match('Open31', 100, 121)
