@@ -1,5 +1,9 @@
 # HFEGebf
 
+import json
+from datetime import datetime
+
+
 class DataBase:
     __instance = None
 
@@ -223,7 +227,7 @@ print(pt.__dict__)
 
 # 10 классов/функций для вашего сайта
 # Регистрация на сайте онлайн игры??
-
+'''
 
 class ACCOUNT:
     reg = {}
@@ -317,3 +321,62 @@ while chose != 'exit':
 b = GAME()
 b.win_the_match('Open31', 100, 121)
 b.check_records('Open31')
+'''
+
+
+data = {"username": "Ivan",
+        "created_at": datetime.now().isoformat()}
+
+json.dumps(data)
+
+data2 = ["python", "api", "json"]
+json.dumps(data2)
+
+
+class DB_CONN:
+    def __init__(self):
+        pass
+
+
+class User:
+    def __init__(self, username, password):
+        self.username = username
+        self.__password = self.__hash__()
+        self.__db_session = DB_CONN()
+        self.created_at = datetime.now()
+
+    def _to_dict(self):
+        return {"username": self.username,
+                "created_at": self.created_at.isoformat()}
+
+
+user = {
+    "id": 1,
+    "username": "Ivan",
+    "email": "ivan@ava.com",
+    "profile": {
+        "level": 15,
+        "experience": 7500,
+        "rank": "Gold",
+        "avatar": "url"
+    },
+    "inventory": [
+        {"item": "sword", "quantity": 1},
+        {"item": "potion", "quantity": 5}
+    ]
+}
+
+print(user)
+
+user = User("Ivan", "secret")
+print(user.__dict__)
+json.dumps(user._to_dict())
+
+with open("user_data.json", "w", encoding="utf-8") as json_file:
+    json.dump(user._to_dict(), json_file)
+
+with open("user_data.json", encoding="utf-8") as reading_file:
+    json.dump(user._to_dict(), json_file)
+
+# user["inventory"] = user
+# json.dumps(user._to_dict())
