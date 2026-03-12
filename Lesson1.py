@@ -580,8 +580,15 @@ class Point:
         return list(map(abs, self.__coords))  # Делаем списочек
 
 
+'''
 class Clock:
     __Day = 86400
+
+    @classmethod
+    def __verify_data(cls, other):
+        if not isinstance(other, (int, Clock)):
+            raise ArithmeticError('Правый операнд должен быть int или Clock')
+        return other if isinstance(other, int) else other.seconds
 
     def __init__(self, seconds: int):
         if not isinstance(seconds, int):
@@ -594,37 +601,287 @@ class Clock:
         h = (self.seconds // 3600) % 24
         return f'{self.__get_formatted(h)}:{self.__get_formatted(m)}:{self.__get_formatted(s)}'
 
+    def __eq__(self, other):
+        sc = __verify_data(other)
+        return self.seconds == sc
+
+    def __lt__(self, other):
+        sc = __verify_data(other)
+        return self.seconds < sc
+
     def __add__(self, other):
-        if not isinstance(other, (int, Clock)):
-            raise TypeError('Правый операнд должен быть int или Clock')
-        sc = other if isinstance(other, int) else other.seconds
+        sc = __verify_data(other)
         return Clock(self.seconds + sc)
+
+    def __le__(self, other):
+        sc = __verify_data(other)
+        return self.seconds <= sc
 
     def __radd__(self, other):
         return self + other
 
     def __iadd__(self, other):
         print("__iadd__")
-        if not isinstance(other, (int, Clock)):
-            raise TypeError('Правый операнд должен быть int или Clock')
-        sc = other if isinstance(other, int) else other.seconds
+        sc = __verify_data(other)
         self.seconds += sc
         return self
 
     @classmethod
     def __get_formatted(cls, x):
         return str(x).rjust(2, '0')
+'''
 
-
-c1 = Clock(1000)
-print(c1.get_time())
-c2 = Clock(2000)
-c3 = Clock(3000)
-c4 = 100 + c1
-c1 += 100
-print(c4.get_time())
 
 # __sub__ вычитание -
 # __mul__ сложение +
 # __floordiv__ целочисленное деление //
 # __mod__ деление с осттатком %
+
+# == __eq__
+# != __ne__
+# < __lt__
+# <= __le__
+
+
+class Point2:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
+
+    def __hash__(self):
+        return hash((self.x, self.y))  # Один hash на двоих
+
+    def __len__(self):
+        print("__len__")
+        return self.x * self.x + self.y * self.y
+
+    def __bool__(self):
+        print("__booll__")
+        return self.x == self.y
+
+
+'''
+p1 = Point2(1, 2)
+p2 = Point2(1, 2)
+
+print(hash(p1), hash(p2))
+print(p1 == p2)
+
+d = {}
+d[p1] = 1
+d[p2] = 2
+
+print(d)
+'''
+
+
+class Student:
+    def __init__(self, name, marks):
+        self.name = name
+        self.marks = list(marks)
+
+    def __getitem__(self, item):
+        if not isinstance(item, int):
+            raise IndexError("Индекс долэен быть целым")
+        if 0 <= item <= len(self.marks):
+            return self.marks[item]
+        else:
+            raise IndexError("Неверный индекс")
+
+    def __setitem__(self, key, value):
+        if not isinstance(key, int) or key < 0:
+            raise IndexError("Неверный индекс")
+        if key >= len(self.marks):
+            off = key + 1 - len(self.marks)
+            self.marks.extend([None] * off)
+        self.marks[key] = value
+
+    def __delitem__(self, key):
+        if not isinstance(key, int) or key < 0:
+            raise IndexError("Неверный индекс")
+        del self.marks[key]
+
+
+'''
+s1 = Student('Ivan', [3, 3, 4, 5, 4, 2, 3])
+print(s1[4])
+s1[99] = 5
+del s1[99]
+print(s1[98])
+'''
+
+
+class FRange:
+    def __init__(self, start=0.0, stop=0.0, step=0.1):
+        self.start = start
+        self.stop = stop
+        self.step = step
+        self.value = self.start - self.step
+
+    def __next__(self):
+        if self.value + self.step <= self.stop:
+            self.value += self.step
+            return self.value
+        else:
+            raise StopIteration
+
+    def __iter__(self):
+        self.value = self.start - self.step
+        return self
+
+
+class FRange2D:
+    def __init__(self, start=0.0, stop=0.0, step=0.1, rows=5):
+        self.fr = FRange(start, stop, step)
+        self.rows = rows
+
+    def __iter__(self):
+        self.value_rows = 0
+        return self
+
+    def __next__(self):
+        if self.value_rows < self.rows:
+            self.value_rows += 1
+            return iter(self.fr)
+        else:
+            raise StopIteration
+
+# 1
+
+
+class User:
+
+    def __init__(self, name_age):
+        name, age = self.split_it(name_age)
+        self.name = name
+        self.age = age
+
+    @classmethod
+    def split_it(cls, name_age):
+        name_age = name_age.split(';')
+        name = name_age[0]
+        age = name_age[1]
+        return name, age
+
+
+us1 = User('ОЛег;32')
+
+print(f"Имя: {us1.name}")
+print(f"Возраст: {us1.age}")
+
+# 2
+
+
+class Coordinate:
+    def __init__(self, x, y):
+        self.verify_x(x)
+        self.verify_y(y)
+
+        self.__x = x
+        self.__y = y
+
+    @classmethod
+    def verify_x(cls, x):
+        if type(x) != int and type(x) != float:
+            raise TypeError('x должен быть int или floatt!')
+
+    def verify_y(cls, y):
+        if type(y) != int and type(y) != float:
+            raise TypeError('y должен быть int или floatt!')
+
+    @property
+    def x(self):
+        return self.__x
+
+    @property
+    def y(self):
+        return self.__y
+
+    @x.setter
+    def x(self, x):
+        self.verify_x(x)
+        self.__x = x
+
+    @y.setter
+    def x(self, y):
+        self.verify_y(y)
+        self.__y = y
+
+
+coord1 = Coordinate(1.6, 23)
+# coord1 = Coordinate('gd', 23)
+
+# 3
+
+
+class Multiplier:
+    def __init__(self, n):
+        self.n = n
+
+    def __call__(self, mnosh):
+        return mnosh*self.n
+
+
+# m = Multiplier(11)
+# m2 = Multiplier(100)
+# print(m(4))
+# print(m2(6))
+
+
+# 4
+
+class Vector:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __add__(self, other):  # Ето +
+        if isinstance(other, Vector):
+            return self.x + other.x, self.y + other.y
+        if isinstance(other, (int, float)):
+            return self.x + other, self.y + other
+
+    def __sub__(self, other):  # Ето -
+        if isinstance(other, Vector):
+            return self.x - other.x, self.y - other.y
+        if isinstance(other, (int, float)):
+            return self.x - other, self.y - other
+
+    def __mul__(self, other):  # Ето *
+        if isinstance(other, Vector):
+            return self.x * other.x, self.y * other.y
+        if isinstance(other, (int, float)):
+            return self.x * other, self.y * other
+
+    def __str__(self):  # Ето красивишно
+        return (f"Вектор = ({self.x},{self.y})")
+
+
+'''
+v1 = Vector(1, 3)
+v2 = Vector(2, 3)
+
+print('v1 + v2 =', v1 + v2)
+print('v1 - v2 =', v1 - v2)
+print('v1 * v2 =', v1 * v2)
+
+print('')
+
+print('v1:', str(v1))
+print('v2:', str(v2))
+
+print('')
+
+print(v2 * v2)
+print(v1 - v1)
+print(v2 + v1)
+
+print('')
+
+print(v1 + 1211)
+print(v1 - 231)
+print(v2 * 23424)
+'''
