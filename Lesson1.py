@@ -1,5 +1,10 @@
 # HFEGebf
 
+from datetime import datetime, timedelta
+import datetime
+import time
+import math
+from math import sqrt, pi
 import json
 from datetime import datetime
 
@@ -323,7 +328,7 @@ b.win_the_match('Open31', 100, 121)
 b.check_records('Open31')
 '''
 
-
+'''
 data = {"username": "Ivan",
         "created_at": datetime.now().isoformat()}
 
@@ -380,3 +385,246 @@ with open("user_data.json", encoding="utf-8") as reading_file:
 
 # user["inventory"] = user
 # json.dumps(user._to_dict())
+'''
+
+'''
+class Person:
+    S_RUS = 'абвгдеёжзийклмнопрстъьэюя'
+    S_RUS_UPPER = S_RUS.upper()
+
+    def __init__(self, fio, name, old, ps, weight):
+        self.verify_fio(fio)
+
+        self.fio = fio.split()
+
+        self.__name = name
+        self.__old = old
+        self.__ps = ps
+        self.weight = weight
+
+    @classmethod
+    def verify_fio(cls, fio):
+        if type(fio) != str:
+            raise TypeError('ФИО НЕ СТРОКА')
+        f = fio.split()
+        if len(f) != 3:
+            raise TypeError("Формат неверный")
+        letters = cls.S_RUS + cls.S_RUS_UPPER
+        for s in f:
+            if len(s) < 1:
+                raise TypeError("В ФИО должна быть хотя бы одна букова")
+            if len(s.strip(letters)) != 0:
+                raise TypeError("В ФИО можно использовать только буквы")
+
+    def verify_old(cld, old):
+        if type(old) != int or old < 14 or old > 120:
+            raise TypeError(
+                'Возраст должен быть в диапозоне [14:120] и быть целым')
+
+    def verify_weight(cld, weight):
+        if type(weight) != float and weight < 20:
+            raise TypeError('Вес должен быть числом и больше 20')
+
+    def verify_ps(cld, ps):
+        if type(ps) != str:
+            raise TypeError(
+                'Не бывает такого короткого паспорта! >О')
+
+    @property
+    def fio(self):
+        return self.__fio
+
+    @property
+    def old(self):
+        return self.__old
+
+    @old.setter
+    def old(self, old):
+        self.verify_old(old)
+        self.__old = old
+
+    @property
+    def passport(self):
+        return self.__ps
+
+    @passport.setter
+    def passport(self, ps):
+        self.verify_ps(ps)
+        self.__ps = ps
+
+    @property
+    def weight(self):
+        return self.__weight
+
+    @weight.setter
+    def weight(self, weight):
+        self.verify_ps(weight)
+        self.__weight = weight
+
+    @old.deleter
+    def old(self):
+        del self.__old
+
+
+p = Person('Иван Иванов Иванов', 'Иван', 28, '23424 2342', 70.8)
+
+
+class ReadIntX:
+    def __set_name__(self, owner, name):
+        self.name = '_' + name
+
+    def __get__(self, instance, owner):
+        return getattr(instance, self.name)
+
+    def __set__(self, instance, value):
+        self.verify_coord(value)
+        print(f'__set__: {self.name} = {value}')
+        setattr(instance, self.name, value)
+
+'''
+'''
+
+class Integer:
+
+    @classmethod
+    def verify_coord(cls, coord):
+        if type(coord) != int:
+            raise TypeError('Координаты должны быть целыми')
+
+    def __set_name__(self, owner, name):
+        self.name = '_' + name
+
+    def __get__(self, instance, owner):
+        return getattr(instance, self.name)
+
+    def __set__(self, instance, value):
+        self.verify_coord(value)
+        print(f'__set__: {self.name} = {value}')
+        setattr(instance, self.name, value)
+
+
+class Point3D:
+    xr = ReadIntX()
+    x = Integer()
+    y = Integer()
+    z = Integer()
+
+    def __init__(self, x, y, z):
+        self._x = x
+        self._y = y
+        self._z = z
+
+
+p = Point3D(45, 'f', 43)
+print(p.x)
+p.__dict__['xr'] = 10
+print(p.xr)
+print(p.__dict__)
+'''
+
+
+class Counter:
+    def __init__(self):
+        self.__counter = 0
+
+    def __call__(self, step=1, *args, **kwargs):
+        print('__call__')
+        self.__counter += step
+        return self.__counter
+
+
+class StripChars:
+    def __init__(self, chars):
+        self.__chars = chars
+
+    def __call__(self, *args, **kwargs):
+        if not isinstance(args[0], str):
+            raise ValueError('Аргумент не строка!')
+        return args[0].strip(self.__chars)
+
+
+'''
+
+class Derivate:
+    def __init__(self, func):
+        self.__fn = func
+
+    def __call__(self, x, dx=0.0001, *args, **kwargs):
+        return (self.__fn(x+dx) - self.__fn(x))/dx
+
+    @Derivate
+    def df_sin(x):
+        return math.sin(x)
+'''
+
+
+class Cat:
+    def __init__(self, name):
+        self.name = name
+
+    def __repr__(self):
+        return f'{self.__class__}: {self.name}'
+
+    def __str__(self):
+        return f'{self.name}'
+
+
+class Point:
+    def __init__(self, *args):
+        self.__coords = args
+
+    def __len__(self):
+        return len(self.__coords)
+
+    def __abs__(self):
+        return list(map(abs, self.__coords))  # Делаем списочек
+
+
+class Clock:
+    __Day = 86400
+
+    def __init__(self, seconds: int):
+        if not isinstance(seconds, int):
+            raise TypeError('Секунда = число!')
+        self.seconds = seconds % self.__Day
+
+    def get_time(self):
+        s = self.seconds % 60
+        m = (self.seconds // 60) % 60
+        h = (self.seconds // 3600) % 24
+        return f'{self.__get_formatted(h)}:{self.__get_formatted(m)}:{self.__get_formatted(s)}'
+
+    def __add__(self, other):
+        if not isinstance(other, (int, Clock)):
+            raise TypeError('Правый операнд должен быть int или Clock')
+        sc = other if isinstance(other, int) else other.seconds
+        return Clock(self.seconds + sc)
+
+    def __radd__(self, other):
+        return self + other
+
+    def __iadd__(self, other):
+        print("__iadd__")
+        if not isinstance(other, (int, Clock)):
+            raise TypeError('Правый операнд должен быть int или Clock')
+        sc = other if isinstance(other, int) else other.seconds
+        self.seconds += sc
+        return self
+
+    @classmethod
+    def __get_formatted(cls, x):
+        return str(x).rjust(2, '0')
+
+
+c1 = Clock(1000)
+print(c1.get_time())
+c2 = Clock(2000)
+c3 = Clock(3000)
+c4 = 100 + c1
+c1 += 100
+print(c4.get_time())
+
+# __sub__ вычитание -
+# __mul__ сложение +
+# __floordiv__ целочисленное деление //
+# __mod__ деление с осттатком %
