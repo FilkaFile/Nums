@@ -1,0 +1,26 @@
+{
+    "player": {
+        "username": "Амелия",
+        "password": -7244467010310829508,
+        "email": "sobaka@okak.com",
+        "created_at": "2026-03-12T16:30:14.781516",
+        "profile": {
+            "level": 11,
+            "rang": 5
+        }
+    },
+    "inventory": {
+        "weapon": "Меч",
+        "armor": "Кожаные ботинки",
+        "potions": "Зелье здоровья",
+        "potions quantity": "10",
+        "items": [
+            "Рог единорога",
+            "Зуб акулы"
+        ]
+    },
+    "game_session": {
+        "experience": 1090,
+        "time_session": "2026-03-12T16:30:14.781545"
+    }
+}

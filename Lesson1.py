@@ -885,3 +885,73 @@ print(v1 + 1211)
 print(v1 - 231)
 print(v2 * 23424)
 '''
+
+# Вчерашнее
+
+
+class Inventory:
+    def __init__(self, weapon, armor, potions, potions_quantity, items):
+        self.weapon = weapon
+        self.armor = armor
+        self.potions = potions
+        self.potions_quantity = potions_quantity
+        self.items = items if isinstance(items, list) else []
+
+    def _to_dict(self):
+        return {"weapon": self.weapon,
+                "armor": self.armor,
+                "potions": self.potions,
+                "potions quantity": self.potions_quantity,
+                "items": self.items
+                }
+
+
+class Player:
+    def __init__(self, username, email, level, rang):
+        self.username = username
+        self.__email = email
+        self.created_at = datetime.now()
+        self.level = level
+        self.rang = rang
+
+    def _to_dict(self):
+        return {"username": self.username,
+                "email": self.__email,
+                "created_at": self.created_at.isoformat(),
+                "profile": {
+                    "level": self.level,
+                    "rang": self.rang
+                }
+                }
+
+
+class GameSession:
+    def __init__(self, experience):
+        self.experience = experience
+        self.time_session = datetime.now()
+
+    def _to_dict(self):
+        return {"experience": self.experience,
+                "time_session": self.time_session.isoformat()}
+
+
+'''
+p1 = Player('Амелия', 'sobaka@okak.com', 11, 5)
+inv1 = Inventory('Меч', 'Кожаные ботинки', 'Зелье здоровья',
+                 '10', ['Рог единорога', 'Зуб акулы'])
+gm1 = GameSession(1090)
+
+all_data = {
+    "player": p1._to_dict(),
+    "inventory": inv1._to_dict(),
+    "game_session": gm1._to_dict()
+}
+
+with open("player_data.json", "w", encoding="utf-8") as json_file:
+    json.dump(all_data, json_file, ensure_ascii=False, indent=4)
+
+with open("player_data.json", "r", encoding="utf-8") as reading_file:
+    loaded_data = json.load(reading_file)
+    print("\nДанные успешно прочитаны из player_data.json:")
+    print(json.dumps(loaded_data, ensure_ascii=False, indent=4))
+'''
