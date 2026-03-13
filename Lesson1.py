@@ -1005,7 +1005,84 @@ class Vector(list):
         return ''.join(map(str, self))
 
 
-l = Line(1, 2, 3, 4)
-r = Rect(2, 1, 4, 2)
-l.get_coords()
-print(r._x1)
+class Geom20:
+    def get_pr(self):
+        raise NotImplementedError('В дочернем классе должен быть get_pr()!')
+
+
+class Rectangle(Geom20):
+    def __init__(self, w, h):
+        self.w = w
+        self.h = h
+
+    def get_pr(self):
+        return 2*(self.w + self.h)
+
+
+class Square(Geom20):
+    def __init__(self, a):
+        self.a = a
+
+    def get_pr(self):
+        return self.a * 4
+
+
+class Triangle(Geom20):
+    def __init__(self, a, b, c):
+        self.a = a
+        self.b = b
+        self.c = c
+
+
+class MixinLog2():
+    def __init__(self):
+        super().__init__()
+        print('mixin2')
+
+
+class MixinLog():
+    ID = 0
+
+    def __init__(self):
+        print('mixin')
+        self.ID += 1
+        self.id = self.ID
+
+    def save_sell_log(self):
+        print(f'Товар {self.id} продан')
+
+    def print_info(self):
+        print('пишу важни дату')
+
+
+class Goods:
+    def __init__(self, name, weight, price):
+        super().__init__()
+        print('init Goods')
+
+        self.name = name
+        self.weight = weight
+        self.price = price
+
+    def print_info(self):
+        print(f'{self.name}, {self.weight}, {self.price}')
+
+
+# Как тут стоит наследственность, так и будет отрабатывать оператор super()
+class NoteBook(Goods, MixinLog, MixinLog2):
+    def print_info(self):
+        MixinLog.print_info(self)
+
+
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+
+pt = Point(12, 23.32)
+pt.x = 3
+pt.y = 34
+pt.z = 232
+
+print(pt.__dict__)
