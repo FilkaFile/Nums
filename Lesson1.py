@@ -1,9 +1,7 @@
 # HFEGebf
 
-from datetime import datetime, timedelta
-import datetime
-import time
-import math
+import timeit
+from datetime import datetime
 from math import sqrt, pi
 import json
 from datetime import datetime
@@ -1074,15 +1072,141 @@ class NoteBook(Goods, MixinLog, MixinLog2):
         MixinLog.print_info(self)
 
 
-class Point:
+'''
+class Point2D:
+
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.__lenght = (x*x + y*y) ** 0.5
+
+    def calc(self):
+        self.x += 1
+        del self.y
+        self.y = 0
+
+    __slots__ = ('x', 'y', '__lenght')
+
+    MAX_COORD = 100
+
+    @property
+    def lenght(self):
+        return self.__lenght
+
+    @lenght.setter
+    def lenght(self, value):
+        self.__lenght = value
+
+
+class Point3D(Point2D):
+    __slots__ = 'z',
+
+    def __init__(self, x, y, z):
+        super().__init__(x, y)
+        self.z = z
+
+'''
+# 1 Банкротскво
+
+
+class Payment:
+    def pay(self, amount):
+        raise NotImplementedError("Метод должен быть переопределен")
+
+
+class SberPay(Payment):
+    def pay(self, amount):
+        super().__init__()
+        print(f"Оплата {amount} через Сбер")
+
+
+class TinkoffPay(Payment):
+    def pay(self, amount):
+        super().__init__()
+        print(f"Оплата {amount} через Тинькофф")
+
+
+sber = SberPay()
+tb = TinkoffPay()
+
+# Все деньги с карточек депаем через список
+peypay = [sber, tb, sber, sber, tb, tb]
+
+for p in peypay:  # Полиморфим на максималках
+    p.pay(100)
+
+# 2 Алё
+
+
+class Phone:
+    def call(self, number):
+        pass
+
+
+class Camera:
+    def take_photo(self):
+        pass
+
+
+class Smartphone(Camera, Phone):
+    def call(self, number):
+        super().__init__()
+
+    def call(self):
+        super().__init__()
+
+
+s1 = Smartphone
+# print(s1.__mro__)
+
+
+# 3
+
+class Point2D1:
+    __slots__ = ('x', 'y')
+
     def __init__(self, x, y):
         self.x = x
         self.y = y
 
 
-pt = Point(12, 23.32)
-pt.x = 3
-pt.y = 34
-pt.z = 232
+pt = Point2D1(1, 2321.43)
+# pt.color = "red"
 
-print(pt.__dict__)
+
+# 4
+
+class Point2D2:
+
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    @property
+    def length(self):
+        return self.x+self.y
+
+    __slots__ = ('x', 'y')
+
+
+class Point3D(Point2D2):
+
+    def __init__(self, x, y, z):
+        super().__init__(x, y)
+        self.z = z
+
+    @property
+    def length(self):
+        return self.x+self.y+self.z
+
+    __slots__ = ('z',)
+
+
+p2 = Point2D2(12, 11.3)
+p3 = Point3D(14, 13, 12)
+
+# print(f"Point2D: {p2.length}")
+# print(f"Point3D: {p3.length}")
+
+# p2.color = 'blue'
+# p3.color = 'blue'
