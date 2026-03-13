@@ -749,8 +749,9 @@ class FRange2D:
         else:
             raise StopIteration
 
-# 1
 
+# 1
+'''
 
 class User:
 
@@ -788,6 +789,7 @@ class Coordinate:
         if type(x) != int and type(x) != float:
             raise TypeError('x должен быть int или floatt!')
 
+    @classmethod
     def verify_y(cls, y):
         if type(y) != int and type(y) != float:
             raise TypeError('y должен быть int или floatt!')
@@ -814,7 +816,7 @@ class Coordinate:
 coord1 = Coordinate(1.6, 23)
 # coord1 = Coordinate('gd', 23)
 
-# 3
+#
 
 
 class Multiplier:
@@ -825,10 +827,11 @@ class Multiplier:
         return mnosh*self.n
 
 
-# m = Multiplier(11)
-# m2 = Multiplier(100)
-# print(m(4))
-# print(m2(6))
+m = Multiplier(11)
+m2 = Multiplier(100)
+print(m(4))
+print()
+print(m2(6))
 
 
 # 4
@@ -856,11 +859,13 @@ class Vector:
         if isinstance(other, (int, float)):
             return self.x * other, self.y * other
 
+    def __rmul__(self, other):
+        return self * other
+
     def __str__(self):  # Ето красивишно
         return (f"Вектор = ({self.x},{self.y})")
 
 
-'''
 v1 = Vector(1, 3)
 v2 = Vector(2, 3)
 
@@ -883,8 +888,7 @@ print('')
 
 print(v1 + 1211)
 print(v1 - 231)
-print(v2 * 23424)
-'''
+print(23424 * v2)
 
 # Вчерашнее
 
@@ -934,7 +938,7 @@ class GameSession:
         return {"experience": self.experience,
                 "time_session": self.time_session.isoformat()}
 
-
+'''
 '''
 p1 = Player('Амелия', 'sobaka@okak.com', 11, 5)
 inv1 = Inventory('Меч', 'Кожаные ботинки', 'Зелье здоровья',
@@ -955,3 +959,53 @@ with open("player_data.json", "r", encoding="utf-8") as reading_file:
     print("\nДанные успешно прочитаны из player_data.json:")
     print(json.dumps(loaded_data, ensure_ascii=False, indent=4))
 '''
+
+
+class Geom:
+    __name = "Geom"
+
+    def __init__(self, x1, x2, y1, y2):
+        print(f'Init Geom для {self.__class__}')
+        self._x1 = x1
+        self._x2 = x2
+        self._y1 = y1
+        self._y1 = y2
+
+    def draw(self):
+        print('Рисование примитива')
+
+    def __verify_coord(self, coord):  # Приватный метод
+        return 0 <= coord <= 100
+
+
+class Line(Geom):  # Наследование
+    name = 'Line'
+
+    def get_coords(self):
+        return (self._x1, self._x2)
+
+    def draw(self):
+        print('Рисование Line')
+
+
+class Rect(Geom):
+
+    def __init__(self, x1, x2, y1, y2, fill=None):
+        # Geom.__init__(self, x1, x2, y1, y2) Не лучшая практика
+        super().__init__(x1, x2, y1, y2)
+        print('Init Rect')
+        self._fill = fill
+
+    def draw(self):
+        print('Рисование Rect')
+
+
+class Vector(list):
+    def __str__(self):
+        return ''.join(map(str, self))
+
+
+l = Line(1, 2, 3, 4)
+r = Rect(2, 1, 4, 2)
+l.get_coords()
+print(r._x1)
