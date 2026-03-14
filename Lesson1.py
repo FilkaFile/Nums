@@ -1392,7 +1392,6 @@ class MemoryDB:
         self.users_storage = []
         self.transactions_storage = []
         self.user_id_counter = 1
-        self.transaction_id_counter = 1
 
     def insert_user(self, user_obj):
         # user_obj.id = self._user_id_counter
@@ -1400,22 +1399,26 @@ class MemoryDB:
         self.users_storage.append(user_obj)
         return user_obj
 
-    def insert_transaction(self, user_obj):
-        self.transaction_id_counter += 1
-        self.transactions_storage.append(user_obj)
-        return user_obj
+    def insert_transaction(self, transaction_obj):
+        self.transactions_storage.append(transaction_obj)
+        return transaction_obj
 
     def filter_users(self, **kwargs):
         result = []
         for user in self.users_storage:
             nysnoe = True
             for key, value in kwargs.items():
+
+                # Получаем указани атрибут из User
                 attr_value = getattr(user, key, None)
+
                 if attr_value != value:
                     nysnoe = False
                     break
+
             if nysnoe:
                 result.append(user)
+
         return result
 
     def save_to_json(self, filename="bank_db.json"):
@@ -1427,26 +1430,43 @@ class MemoryDB:
 
 
 us1 = User('Серёга', 28, 'seryoga@kuku.com')
-us2 = User('Ваня', 2223, 'vanya@example.com')
+us2 = User('Ваня', 2223, 'vanya@example.com', 22)
+us3 = User('Игорьь', 28, 'igor@example.com')
 
 tr1 = Transaction('Серёга', 'Ваня', 12341313123)
 tr2 = Transaction('Ваня', 'Серёга', 3424)
-tr3 = Transaction('Серёга', 'Серёга', 33)
+tr3 = Transaction('Серёга', 'Игорьь', 33)
 
+# Проверка на то, что поменять зафризенные атрибуты класса не могём
 # tr3.amount = 3123
 
 db = MemoryDB()
 
+# Создаём базу данных и закидываем туда user-ов
+
 db.insert_user(us1)
 db.insert_user(us2)
+db.insert_user(us3)
 
-for u in db.users_storage:
-    print(u)
-
-print(db.filter_users(age=28))
+# Кидаем туда же транзакции
 
 db.insert_transaction(tr1)
 db.insert_transaction(tr2)
 db.insert_transaction(tr3)
 
+
+print('Все кто есть:')
+for _ in db.users_storage:  # Цикл для вывода всех userss
+    print(_)
+    print()
+
+print('Фильтр на 28 лет:')
+print(db.filter_users(age=28))  # проверка на то кому там 28
+
+print()
+
+print('Фильтр на 28 лет и имя ИГОРЬ:')
+print(db.filter_users(age=28, name='Игорьь'))
+
+# Всё в json
 db.save_to_json()

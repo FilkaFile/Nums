@@ -10,6 +10,12 @@
             "name": "Ваня",
             "age": 2223,
             "email": "vanya@example.com",
+            "id": 22
+        },
+        {
+            "name": "Игорьь",
+            "age": 28,
+            "email": "igor@example.com",
             "id": null
         }
     ],
@@ -34,7 +40,7 @@
         },
         {
             "name": "Серёга",
-            "age": "Серёга",
+            "age": "Игорьь",
             "email": 33,
             "id": null,
             "from_account": "",
