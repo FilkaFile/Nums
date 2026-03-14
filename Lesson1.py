@@ -1,7 +1,7 @@
 # HFEGebf
 
-from dataclasses import dataclass, field
-from dataclasses import dataclass
+from dataclasses import asdict
+from dataclasses import dataclass, field, InitVar, make_dataclass
 import timeit
 from datetime import datetime
 from math import sqrt, pi
@@ -1295,23 +1295,158 @@ class Vector3D:
         self.x = x
         self.y = y
         self.z = z
-        self.lenght = (x*x + y*y+z*z)**0.5
+        self.lenght = (x*x + y*y+z*z)**0.5 if calc_len else 0
 
 
-@dataclass
+@dataclass(eq=True, order=True)
 class V3D:
     x: int = field(repr=False)
     y: int
-    z: int = field(compare=False)
+    z: int  # = field(compare=False)
     # С помощью параметра compare запрещаем или разрешаем сравнивать переменные
-    lenght: float = field(init=False, compare=False)
+    clalc_len: InitVar[bool] = True
+    lenght: float = field(init=False, compare=False, default=0)
+
+
+'''
+    def __post_init__(self, calc_len: bool):
+        if calc_len:
+            self.lenght = (self.x*self.x + self.y*self.y+self.z*self.z)**0.5
+'''
+
+
+class GoodsMethodsFactory:
+    @staticmethod
+    def get_init_measure():
+        return [0, 0, 0]
+
+
+@dataclass
+class Goods:
+    current_uid = 0
+    uid: int = field(init=False)
+    price: any = None
+    weight: any = None
 
     def __post_init__(self):
-        self.lenght = (self.x*self.x + self.y*self.y+self.z*self.z)**0.5
+        print('Goods_post_init')
+        Goods.current_uid += 1
+        self.uid = Goods.current_uid
+
+   # def __init__(self, uid: Any, price: Any = None, weight: Any = None):
 
 
-v = V3D(1, 2, 3)
-v2 = V3D(1, 2, 5)
+@dataclass
+class Book(Goods):
+    # def __init__(self, uid: Any, price: float = 0, weight: int | float = 0, title: str = '', author: str = '')
 
-print(v)
-print(v == v2)
+    title: str = ''
+    author: str = ''
+    price: float = 0
+    weight: int | float = 0
+    measure: list = field(
+        default_factory=GoodsMethodsFactory.get_init_measure())
+
+    def __post_init__(self):
+        print('Books_post_init')
+        super().__post_init__()
+
+
+class Car:
+    def __init__(self, moыdel, max_speed, price):
+        self.model = model
+        self.max_speed = max_speed
+        self.price = price
+
+    def get_max_speed(self):
+        return self.max_speed
+
+
+CarData = make_dataclass('CarData', [('model', str), 'max_speed', ('price', float, field(
+    default=0))], namespace={'get_max_speed': lambda self: self.max_speed})
+
+
+# 1 Вооражаю себя банкиром часть 1
+
+@dataclass(frozen=True)
+class User:
+    name: str
+    age: int
+    email: str
+    id: int = None
+
+
+@dataclass(frozen=True)
+class Transaction(User):
+
+    from_account: str = ''
+    to_account: str = ''
+    amount: int = 0
+
+
+# 2 Движок БДД
+
+
+class MemoryDB:
+    def __init__(self):
+        self.users_storage = []
+        self.transactions_storage = []
+        self.user_id_counter = 1
+        self.transaction_id_counter = 1
+
+    def insert_user(self, user_obj):
+        # user_obj.id = self._user_id_counter
+        self.user_id_counter += 1
+        self.users_storage.append(user_obj)
+        return user_obj
+
+    def insert_transaction(self, user_obj):
+        self.transaction_id_counter += 1
+        self.transactions_storage.append(user_obj)
+        return user_obj
+
+    def filter_users(self, **kwargs):
+        result = []
+        for user in self.users_storage:
+            nysnoe = True
+            for key, value in kwargs.items():
+                attr_value = getattr(user, key, None)
+                if attr_value != value:
+                    nysnoe = False
+                    break
+            if nysnoe:
+                result.append(user)
+        return result
+
+    def save_to_json(self, filename="bank_db.json"):
+        data = {"users": [asdict(user) for user in self.users_storage],
+                "transactions": [asdict(tx) for tx in self.transactions_storage]}
+
+        with open(filename, "w", encoding="utf-8") as file:
+            json.dump(data, file, ensure_ascii=False, indent=4)
+
+
+us1 = User('Серёга', 28, 'seryoga@kuku.com')
+us2 = User('Ваня', 2223, 'vanya@example.com')
+
+tr1 = Transaction('Серёга', 'Ваня', 12341313123)
+tr2 = Transaction('Ваня', 'Серёга', 3424)
+tr3 = Transaction('Серёга', 'Серёга', 33)
+
+# tr3.amount = 3123
+
+db = MemoryDB()
+
+db.insert_user(us1)
+db.insert_user(us2)
+
+for u in db.users_storage:
+    print(u)
+
+print(db.filter_users(age=28))
+
+db.insert_transaction(tr1)
+db.insert_transaction(tr2)
+db.insert_transaction(tr3)
+
+db.save_to_json()

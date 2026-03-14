@@ -1,0 +1,45 @@
+{
+    "users": [
+        {
+            "name": "Серёга",
+            "age": 28,
+            "email": "seryoga@kuku.com",
+            "id": null
+        },
+        {
+            "name": "Ваня",
+            "age": 2223,
+            "email": "vanya@example.com",
+            "id": null
+        }
+    ],
+    "transactions": [
+        {
+            "name": "Серёга",
+            "age": "Ваня",
+            "email": 12341313123,
+            "id": null,
+            "from_account": "",
+            "to_account": "",
+            "amount": 0
+        },
+        {
+            "name": "Ваня",
+            "age": "Серёга",
+            "email": 3424,
+            "id": null,
+            "from_account": "",
+            "to_account": "",
+            "amount": 0
+        },
+        {
+            "name": "Серёга",
+            "age": "Серёга",
+            "email": 33,
+            "id": null,
+            "from_account": "",
+            "to_account": "",
+            "amount": 0
+        }
+    ]
+}
