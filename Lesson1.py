@@ -1,5 +1,7 @@
 # HFEGebf
 
+from dataclasses import dataclass, field
+from dataclasses import dataclass
 import timeit
 from datetime import datetime
 from math import sqrt, pi
@@ -1126,14 +1128,16 @@ class TinkoffPay(Payment):
         print(f"Оплата {amount} через Тинькофф")
 
 
+'''
 sber = SberPay()
 tb = TinkoffPay()
 
 # Все деньги с карточек депаем через список
-peypay = [sber, tb, sber, sber, tb, tb]
+peypay = [sber, tb, sber, tb, tb, tb]
 
 for p in peypay:  # Полиморфим на максималках
     p.pay(100)
+    '''
 
 # 2 Алё
 
@@ -1152,26 +1156,18 @@ class Smartphone(Camera, Phone):
     def call(self, number):
         super().__init__()
 
-    def call(self):
+    def take_photo(self):
         super().__init__()
-
-
-s1 = Smartphone
-# print(s1.__mro__)
 
 
 # 3
 
 class Point2D1:
-    __slots__ = ('x', 'y')
+    __slots__ = ('x', 'y', 'color')
 
     def __init__(self, x, y):
         self.x = x
         self.y = y
-
-
-pt = Point2D1(1, 2321.43)
-# pt.color = "red"
 
 
 # 4
@@ -1191,22 +1187,131 @@ class Point2D2:
 
 class Point3D(Point2D2):
 
-    def __init__(self, x, y, z):
-        super().__init__(x, y)
+    def __init__(self, pt, z):
+        self.x = pt.x
+        self.y = pt.y
         self.z = z
 
     @property
     def length(self):
         return self.x+self.y+self.z
 
-    __slots__ = ('z',)
+    __slots__ = ('z', 'color')
 
-
-p2 = Point2D2(12, 11.3)
-p3 = Point3D(14, 13, 12)
-
-# print(f"Point2D: {p2.length}")
-# print(f"Point3D: {p3.length}")
 
 # p2.color = 'blue'
 # p3.color = 'blue'
+
+
+class Man:
+    title = 'Объект класса для title'
+    photo = 'Объект класса для photo'
+    ordering = 'Объект класса для ordering'
+
+    def __init__(self, user, psw):
+        self._user = user
+        self._psw = psw
+        self.meta = self.Meta(user + '@' + psw)
+
+    class Meta:
+        ordering = ['id']
+
+        def __init__(self, acess):
+            self.acess = acess
+
+
+class B1:
+    pass
+
+
+class B2:
+    pass
+
+
+def method1(self):
+    print(self.__dict__)
+
+
+A = type('Point', (B1, B2), {'Mx': 100, 'Mn': 0,
+         'method1': method1, 'method2': lambda self: self.Mx})
+
+# Определяем функцию и методы прямо без явного объявдения класса META-класс
+
+
+def create_class_point(name, base, attrs):
+    attrs.update({'Mx': 100, 'Mn': 0})
+    return type(name, base, attrs)
+
+
+class Point2(metaclass=create_class_point):
+    def get_coords(self):
+        return (0, 0)
+
+
+class Meta(type):
+    def __new__(cls, name_class, base, attrs):
+        attrs.update({'Mx': 100, 'Mn': 0})
+        return type.__new__(cls, name_class, base, attrs)
+
+
+class Point3(metaclass=Meta):
+    def get_coords(self):
+        return (0, 0)
+
+
+class Meta2(type):
+    def create_local_attrs(self, *args, **kwargs):
+        for key, value in self.class_attrs.items():
+            self.__dict__[key] = value
+
+    def __init__(cls, name_class, base, attrs):
+        cls.class_attrs = attrs
+        cls.__init__ = Meta.create_local_attrs
+
+
+class Thing:
+    def __init__(self, name, weight, price):
+        self.name = name
+        self.weight = weight
+        self.price = price
+
+    def __repr__(self):
+        return f"Thing: {self.__dict__}"
+
+
+@dataclass
+class ThingData:
+    name: str
+    weight: int
+    price: float = 0
+    dims: list = field(default_factory=list)
+
+    def __eq__(self, other):
+        return self.weight == other.weight
+
+
+class Vector3D:
+    def __init__(self, x: int, y: int, z: int):
+        self.x = x
+        self.y = y
+        self.z = z
+        self.lenght = (x*x + y*y+z*z)**0.5
+
+
+@dataclass
+class V3D:
+    x: int = field(repr=False)
+    y: int
+    z: int = field(compare=False)
+    # С помощью параметра compare запрещаем или разрешаем сравнивать переменные
+    lenght: float = field(init=False, compare=False)
+
+    def __post_init__(self):
+        self.lenght = (self.x*self.x + self.y*self.y+self.z*self.z)**0.5
+
+
+v = V3D(1, 2, 3)
+v2 = V3D(1, 2, 5)
+
+print(v)
+print(v == v2)
