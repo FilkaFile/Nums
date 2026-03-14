@@ -1377,10 +1377,10 @@ class User:
 
 
 @dataclass(frozen=True)
-class Transaction(User):
+class Transaction:
 
-    from_account: str = ''
-    to_account: str = ''
+    from_account: User
+    to_account: User
     amount: int = 0
 
 
@@ -1433,9 +1433,9 @@ us1 = User('Серёга', 28, 'seryoga@kuku.com')
 us2 = User('Ваня', 2223, 'vanya@example.com', 22)
 us3 = User('Игорьь', 28, 'igor@example.com')
 
-tr1 = Transaction('Серёга', 'Ваня', 12341313123)
-tr2 = Transaction('Ваня', 'Серёга', 3424)
-tr3 = Transaction('Серёга', 'Игорьь', 33)
+tr1 = Transaction(us1, us2, 12341313123)
+tr2 = Transaction(us2, us3, 3424)
+tr3 = Transaction(us1, us3, 33)
 
 # Проверка на то, что поменять зафризенные атрибуты класса не могём
 # tr3.amount = 3123
