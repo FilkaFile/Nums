@@ -1436,37 +1436,3 @@ us3 = User('Игорьь', 28, 'igor@example.com')
 tr1 = Transaction(us1, us2, 12341313123)
 tr2 = Transaction(us2, us3, 3424)
 tr3 = Transaction(us1, us3, 33)
-
-# Проверка на то, что поменять зафризенные атрибуты класса не могём
-# tr3.amount = 3123
-
-db = MemoryDB()
-
-# Создаём базу данных и закидываем туда user-ов
-
-db.insert_user(us1)
-db.insert_user(us2)
-db.insert_user(us3)
-
-# Кидаем туда же транзакции
-
-db.insert_transaction(tr1)
-db.insert_transaction(tr2)
-db.insert_transaction(tr3)
-
-
-print('Все кто есть:')
-for _ in db.users_storage:  # Цикл для вывода всех userss
-    print(_)
-    print()
-
-print('Фильтр на 28 лет:')
-print(db.filter_users(age=28))  # проверка на то кому там 28
-
-print()
-
-print('Фильтр на 28 лет и имя ИГОРЬ:')
-print(db.filter_users(age=28, name='Игорьь'))
-
-# Всё в json
-db.save_to_json()
