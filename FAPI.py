@@ -1,5 +1,5 @@
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Path
 from fastapi.responses import HTMLResponse, JSONResponse, Response, PlainTextResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -23,7 +23,7 @@ def admin():
 
 
 @app.get('/users/{name}')
-def users(name: str):
+def users(name: str = Path(min_length=1, max_length=3)):
     return {'users': name}
 
 
@@ -39,7 +39,7 @@ def mynum():
 
 @app.get('/foo')
 def root_file():
-    return FileResponse("public/ooo.docx", filename='ooo.docx', media_type="application/octet-stream")
+    return FileResponse("FAPI.py", filename='FAPI.py', media_type="application/octet-stream")
 
 
 @app.get('/', response_class=PlainTextResponse)
