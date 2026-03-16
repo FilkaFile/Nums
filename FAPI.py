@@ -17,8 +17,18 @@ app.add_middleware(CORSMiddleware, allow_origins=origins,
 my_us = {'1': 'Ivan', "2": 'Pavel', '3': 'Stepa'}
 
 
+@app.get("/users/admin")
+def admin():
+    return {"mess": "пупупуууу"}
+
+
+@app.get('/users/{name}')
+def users(name: str):
+    return {'users': name}
+
+
 @app.get('/users/{id}/{age}')  # Шаблон
-def get_users(id, age):
+def get_users(id: int, age: int):
     return str(my_us.get(id)) + " age " + str(age)
 
 
