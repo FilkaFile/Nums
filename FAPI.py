@@ -1,5 +1,5 @@
 import uvicorn
-from fastapi import FastAPI, Path
+from fastapi import FastAPI, Path, Query
 from fastapi.responses import HTMLResponse, JSONResponse, Response, PlainTextResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -17,14 +17,19 @@ app.add_middleware(CORSMiddleware, allow_origins=origins,
 my_us = {'1': 'Ivan', "2": 'Pavel', '3': 'Stepa'}
 
 
+@app.get("/cats")
+def get_cat(name: list[str] = Query(default='whdd', min_length=3, max_length=10)):
+    return {"cat_name": name}
+
+
 @app.get("/users/admin")
 def admin():
     return {"mess": "пупупуууу"}
 
 
 @app.get('/users/{name}')
-def users(name: str = Path(min_length=1, max_length=3)):
-    return {'users': name}
+def users(name: str = Path(min_length=1, max_length=10), age: int = Query(ge=18, lt=101)):
+    return {'users': name, "age": age}
 
 
 @app.get('/users/{id}/{age}')  # Шаблон
