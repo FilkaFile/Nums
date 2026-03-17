@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="RU">
 
 <head>
 	<title>MyFastAPI</title>
@@ -16,26 +16,35 @@
 		Введите возраст <br />
 		<input name="userage" id="userage" type="number" />
 	</p>
+	<p>
+		Ведите компанию <br />
+		<input name="usercompany" id="usercompany" />
+	</p>
+
 	<button onclick="send()"> Отправить </button>
 	<script>
 		async function send() {
 			const username = document.getElementById("username").value;
+			const usercompany = document.getElementById("usercompany").value;
 			const userage = document.getElementById("userage").value;
 
 			const response = await fetch("/hello", {
 				method: "POST",
 				headers: { "Accept": "application/json", "Content-Type": "application/json" },
 				body: JSON.stringify({
-					name: username,
-					age: userage
+					name: "Том", company: { name: "com1" },
+					name: "Макс", company: { name: "com2" },
+					name: "Прей", company: { name: "com3" }
 				})
 			});
 			if (response.ok) {
 				const data = await response.json();
+				console.log(data)
 				document.getElementById("message").textContent = data.message;
 			}
 			else {
 				console.log(response);
+				document.getElementById("message").textContent = "Ошибка";
 			}
 		}
 	</script>

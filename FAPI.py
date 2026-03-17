@@ -10,8 +10,12 @@ app = FastAPI()
 
 
 class Person(BaseModel):
-    name: str = Field(default='', min_length=0, max_length=50)
+    name: str = Field(default='none', min_length=0, max_length=50)
     age: int | None = None
+
+
+class Company(BaseModel):
+    name: str
 
 
 @app.get("/")
@@ -20,17 +24,20 @@ def root():
 
 
 @app.post("/hello")
-def hello(person: Person):
+def hello(person: list[Person]):
+    people = ""
+    for p in person:
+        people += str(p)
+    return {"message": people}
     if person.age == None:
         return {"message": f"Привет {person.name}"}
     else:
         return {"message": f"Привет {person.name}, ваш возраст - {person.age}"}
 
 
-@app.get('/', response_class=PlainTextResponse)
+@app.get('/')
 def read_root():
-    data = "ОПАНА"
-    return data
+    return FileResponse("public/index2.html")
 
 
 if __name__ == "__main__":
