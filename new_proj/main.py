@@ -10,6 +10,12 @@ import uuid
 app = FastAPI()
 
 
+class Item228 (BaseModel):
+    name: str = Query(default="ковёр", description="Название товара")
+    price: float = Query(default=0, description="Цена товара")
+    id: str = Query(default='', description="Айдишник")
+
+
 class Item:
     def __init__(self, name, price):
         self.name = name
@@ -23,7 +29,7 @@ items_db = [Item('Молоко', 38),
 
 
 @app.post("/items", summary="Создать предмет", description="Добавляет предмет с указанной ценой и именем")
-def create_item(data=Body()):
+def create_item(data: Item228 = Body(description="Создаём поля нового объекта:")):
     item = Item(data["name"], data["price"])
     items_db.append(item)
     return items_db
@@ -48,7 +54,7 @@ def find_item(id):
 
 
 @app.get("/items/{id}", summary="Получить предмет", description='Получает предмет по указанному id')
-def get_item(id):
+def get_item(id: str = Path(description="айдишник получаемого предмета")):
     item = find_item(id)
     if item == None:
         return JSONResponse(
@@ -59,7 +65,7 @@ def get_item(id):
 
 
 @app.delete("/items/{id}", summary="Удалить предмет", description="Удалает предмет по id")
-def delete_item(id):
+def delete_item(id: str = Path(description="айдишник удаляемого предмета")):
     item = find_item(id)
     if item == None:
         return JSONResponse(
@@ -74,7 +80,7 @@ def delete_item(id):
 
 
 @app.put("/items/{id}", summary='Изменить предмет', description="Изменяет название и цену предмета на указанные, тоже по id")
-def edit_item(id, data=Body()):
+def edit_item(id: str = Path(description="айдишник изменяемого предмета"), data: Item228 = Body(description="Изменяем поля объекта:")):
     item = find_item(id)
     if item == None:
         return JSONResponse(
