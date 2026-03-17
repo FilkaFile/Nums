@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import uvicorn
-from fastapi import FastAPI, Body, Path, status
+from fastapi import FastAPI, Body, Path, status, Query
 from fastapi.responses import (
     Response, HTMLResponse, JSONResponse, PlainTextResponse, FileResponse, RedirectResponse)
 from pydantic import BaseModel, Field
@@ -10,77 +10,82 @@ import uuid
 app = FastAPI()
 
 
-class Person:
-    def __init__(self, name, age):
+class Item:
+    def __init__(self, name, price):
         self.name = name
-        self.age = age
-        self.id = str(uuid.uuid4)
+        self.price = price
+        self.id = str(uuid.uuid4())
 
 
-people = [Person('Том', 38),
-          Person('Женя', 50),
-          Person('Томям', 34)]
+items_db = [Item('Молоко', 38),
+            Item('Хлеб', 50),
+            Item('Масло', 34)]
 
 
-def find_person(id):
-    for person in people:
-        if person.id == id:
-            return person
-    return None
+@app.post("/items", summary="Создать предмет", description="Добавляет предмет с указанной ценой и именем")
+def create_item(data=Body()):
+    item = Item(data["name"], data["price"])
+    items_db.append(item)
+    return items_db
 
 
-@app.get('/api/users')
-def get_people():
-    return people
+@app.get('/items', summary="Получить список всех предметов", description="Возвращает все предметы какие есть")
+def get_item():
+    return items_db
 
 
-@app.get('/')
-def root():
+@app.get("/", summary="Индекс", description="Через него мы открываем наш .html файл")
+def index():
     return FileResponse("public/index.html")
 
 
-@app.get("/api/users/{id}")
-def get_perdon(id):
-    person = find_person(id)
-    if person == None:
+def find_item(id):
+    for item in items_db:
+        print(item.id, id)
+        if str(item.id) == str(id):
+            return item
+    return None
+
+
+@app.get("/items/{id}", summary="Получить предмет", description='Получает предмет по указанному id')
+def get_item(id):
+    item = find_item(id)
+    if item == None:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
-            content={"message": "Пользователь хз где"}
+            content={"message": "Товар хз где"}
         )
-    return person
+    return item
 
 
-@app.delete("/api/users/{id}")
-def delete_perdon(id):
-    person = find_person(id)
-    if person == None:
+@app.delete("/items/{id}", summary="Удалить предмет", description="Удалает предмет по id")
+def delete_item(id):
+    item = find_item(id)
+    if item == None:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
-            content={"message": "Пользователь хз где"}
+            content={"message": "Товар хз где"}
         )
-    people.remove(person)
-    return person
+    items_db.remove(item)
+
+    return JSONResponse(
+        content={"message": "Удалено"}
+    ), item
 
 
-@app.post("/api/users")
-def create_person(data=Body()):
-    person = Person(data["name"], data["age"])
-    people.append(person)
-    return person
-
-
-@app.put("/api/users/{id}")
-def edit_peron(data=Body()):
-    person = find_person(data["id"])
-    if person == None:
+@app.put("/items/{id}", summary='Изменить предмет', description="Изменяет название и цену предмета на указанные, тоже по id")
+def edit_item(id, data=Body()):
+    item = find_item(id)
+    if item == None:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
-            content={"message": "Пользователь хз где"}
+            content={"message": "Товар хз где"}
         )
-    person.age = data["age"]
-    person.name = data["name"]
 
-    return person
+    item.price = data["price"]
+    item.name = data["name"]
+
+    return item
 
 
 if __name__ == "__main__":
