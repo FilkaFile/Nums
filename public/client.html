@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Умный Магазин</title>
+    <style>
+        body { font-family: Arial; padding: 20px; max-width: 800px; margin: auto; }
+        .product-card { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 5px; background: #f9f9f9;}
+        .error { color: red; font-weight: bold; }
+        .success { color: green; font-weight: bold; }
+        .stats-box { background: #e0f7fa; padding: 15px; border-radius: 5px; font-size: 18px; margin-bottom: 20px;}
+    </style>
+</head>
+<body>
+
+    <h1>🛒 Умный Магазин</h1>
+
+    <!-- БЛОК СТАТИСТИКИ -->
+    <div class="stats-box">
+        💰 Общая стоимость склада: <b id="totalValue">0</b> руб.
+    </div>
+
+    <!-- ДОБАВЛЕНИЕ ТОВАРА -->
+    <h3>Добавить новый товар:</h3>
+    <input id="newName" placeholder="Название (напр. Клавиатура)">
+    <input id="newPrice" type="number" placeholder="Цена">
+    <input id="newStock" type="number" placeholder="Остаток на складе">
+    <button onclick="addProduct()">Завезти на склад</button>
+    <hr>
+
+    <!-- ВЫВОД СООБЩЕНИЙ ОБ ОШИБКАХ/УСПЕХАХ -->
+    <div id="messageBox"></div>
+
+    <!-- СПИСОК ТОВАРОВ -->
+    <h3>Витрина товаров:</h3>
+    <div id="productList"></div>
+
+    <script>
+        // Функция загрузки товаров и статистики
+        async function loadData() {
+            // 1. Грузим витрину
+            let res = await fetch('/products/');
+            let products = await res.json();
+
+            document.getElementById('productList').innerHTML = products.map(p => `
+                <div class="product-card">
+                    <b>${p.name}</b> — ${p.price} руб. (На складе: <b>${p.stock} шт.</b>)<br><br>
+
+                    <input type="number" id="qty_${p.id}" value="1" min="1" style="width: 50px;">
+                    <button onclick="buyProduct(${p.id})">Купить</button>
+                </div>
+            `).join('');
+
+            // 2. Грузим статистику склада
+            let statsRes = await fetch('/stats/');
+            let stats = await statsRes.json();
+            document.getElementById('totalValue').innerText = stats.total_inventory_value;
+        }
+
+        // POST Запрос: Добавление товара
+        async function addProduct() {
+            let name = document.getElementById('newName').value;
+            let price = document.getElementById('newPrice').value;
+            let stock = document.getElementById('newStock').value;
+
+            await fetch('/products/', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    name: name,
+                    price: parseFloat(price),
+                    stock: parseInt(stock)
+                })
+            });
+            loadData(); // Обновляем экран
+        }
+
+        // POST Запрос: Покупка товара (с указанием количества!)
+        async function buyProduct(id) {
+            // Достаем значение из инпута конкретного товара
+            let qty = document.getElementById(`qty_${id}`).value;
+            let msgBox = document.getElementById('messageBox');
+
+            // Отправляем количество через Query-параметр (в ссылке)
+            let res = await fetch(`/buy/${id}?quantity=${qty}`, { method: 'POST' });
+            let data = await res.json();
+
+            // Обработка ошибок (Если сервер вернул 400 или 404)
+            if (!res.ok) {
+                msgBox.innerHTML = `<p class="error">❌ Ошибка: ${data.detail}</p>`;
+            } else {
+                msgBox.innerHTML = `<p class="success">✅ ${data.message}</p>`;
+            }
+
+            loadData(); // Сразу перерисовываем остатки и статистику!
+        }
+
+        // Запускаем при открытии страницы
+        loadData();
+    </script>
+</body>
+</html>
