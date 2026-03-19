@@ -13,39 +13,35 @@ app = FastAPI()
 Base.metadata.create_all(bind=engine)
 
 
-class ProductCreate(BaseModel):
-    id: int
-    name: str
-    price: float
-    stock: int
-
-
 def get_db():
-    bd = SessionLocal()
+    db = SessionLocal()
     try:
-        yield bd
+        yield db
     finally:
-        bd.close()
+        db.close()
 
 
-@app.get("/")
+@app.get("/", summary='Открываем HTML-ку', description='Функция для открытия нашего html-а')
 def main():
     return FileResponse('public/client.html')
 
 
-@app.get('/products/')
-def get_prod(db: Session = Depends(get_db)):
+@app.get('/products/', summary="Получить все добавленные продукты", description='Функция для получения всех продуктов из JSON-а:')
+def get_prod(db: Session = Depends(get_db)) -> str:
     return db.query(Product).all()
 
 
-@app.get('/stats/')
-def get_stats(db: Session = Depends(get_db), data=Body()):
-    total_inventory_value += data['price'] * data['stock']
+@app.get('/stats/', summary='Получить общую стоимость склада', description="Функция для получения общей стоимости склада:")
+def get_stats(db: Session = Depends(get_db)) -> str:
+    total_inventory_value = 0
+    products = db.query(Product).all()
+    for p in products:
+        total_inventory_value += p.price * p.stock
     return {'total_inventory_value': total_inventory_value}
 
 
-@app.post("/buy/{product_id}")
-def buy_prod(product_id: int, db: Session = Depends(get_db), quantity: int = Query(default=1)):
+@app.post("/buy/{product_id}", summary='Купить товар', description='Функция для покупоЧЕК товаров:')
+def buy_prod(product_id: int = Path(description='Id продукта'), db: Session = Depends(get_db), quantity: int = Query(default=1, description='Кол-во товара для покупки')) -> str:
 
     product = db.query(Product).filter(
         Product.id == product_id).first()
@@ -66,24 +62,27 @@ def buy_prod(product_id: int, db: Session = Depends(get_db), quantity: int = Que
     return {'message': 'Покупка прошла успешно! Вы теперь банкрот)'}
 
 
-@app.post("/products/")
-def create_prod(db: Session = Depends(get_db), data=Body(), quantity: int = Query(default=1)):
+@app.post("/products/", summary='Добавить продукты', description='Функция для добавления/обновления продукта')
+def create_prod(db: Session = Depends(get_db), data: ProductCreate = Body(description="добавляем/обновляем продукт")) -> str:
 
-    product = db.query(Product).filter(Product.name == data['name']).first()
+    product = db.query(Product).filter(Product.name == data.name).first()
 
     if product:
-        product.stock += quantity
-        product.price = data['price']
+        product.stock += data.stock
+        product.price = data.price
 
         db.add(product)
         db.commit()
+        db.refresh(product)
 
-    product = Product(name=data['name'],
-                      price=data['price'], stock=data['stock'])
+    else:
+        product = Product(name=data.name,
+                          price=data.price, stock=data.stock)
 
-    db.add(product)
-    db.commit()
-    db.refresh(product)
+        db.add(product)
+        db.commit()
+        db.refresh(product)
+
     return {"id": product.id, "name": product.name, "price": product.price, "stock": product.stock}
 
 
